@@ -9,7 +9,6 @@ from protorpc import messages
 from protorpc import message_types
 from protorpc import remote
 
-
 # If the request contains path or querystring arguments,
 # you cannot use a simple Message class.
 # Instead, you must use a ResourceContainer class
@@ -18,6 +17,10 @@ REQUEST_CONTAINER = endpoints.ResourceContainer(
     name=messages.StringField(1),
 )
 
+REQUEST_WITH_PERIOD_CONTAINER = endpoints.ResourceContainer(
+    name=messages.StringField(1),
+    period=messages.StringField(2)
+)
 
 package = 'Hello'
 
@@ -32,20 +35,23 @@ class HelloWorldApi(remote.Service):
     """Helloworld API v1."""
 
     @endpoints.method(message_types.VoidMessage, Hello,
-      path = "sayHello", http_method='GET', name = "sayHello")
+                      path="sayHello", http_method='GET', name="sayHello")
     def say_hello(self, request):
-      return Hello(greeting="Hello World")
+        return Hello(greeting="Hello World")
 
     @endpoints.method(REQUEST_CONTAINER, Hello,
-      path = "sayHelloByName", http_method='GET', name = "sayHelloByName")
+                      path="sayHelloByName", http_method='GET',
+                      name="sayHelloByName")
     def say_hello_by_name(self, request):
-      greet = "Hello {}".format(request.name)
-      return Hello(greeting=greet)
+        greet = "Hello {}".format(request.name)
+        return Hello(greeting=greet)
 
-    @endpoints.method(REQUEST_CONTAINER, Hello, path="sayHelloByPeriod",
-                      http_method='GET', name="sayHelloByPeriod")
+    @endpoints.method(REQUEST_WITH_PERIOD_CONTAINER, Hello,
+                      path="sayHelloByPeriod", http_method='GET',
+                      name="sayHelloByPeriod")
     def say_hello_by_peroid(self, request):
         greet = "Hello {}, Good {}".format(request.name, request.period)
         return Hello(greeting=greet)
+
 
 APPLICATION = endpoints.api_server([HelloWorldApi])
